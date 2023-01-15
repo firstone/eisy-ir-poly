@@ -1,0 +1,12 @@
+# controller
+ND-controller-NAME = IR Controller
+CMD-ctl-QUERY-NAME = Query
+ST-ctl-ST-NAME = IR Controller Online
+
+# ir button
+ND-irbutton-NAME = IR Button
+ST-irb-ST-NAME = State
+buttonstate_i-0 = Idle
+buttonstate_i-1 = Pressed
+buttonstate_i-2 = Held
+buttonstate_i-3 = Released

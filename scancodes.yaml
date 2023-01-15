@@ -1,0 +1,183 @@
+4: A
+5: B
+6: C
+7: D
+8: E
+9: F
+10: G
+11: H
+12: I
+13: J
+14: K
+15: L
+16: M
+17: N
+18: O
+19: P
+20: Q
+21: R
+22: S
+23: T
+24: U
+25: V
+26: W
+27: X
+28: Y
+29: Z
+30: 1
+31: 2
+32: 3
+33: 4
+34: 5
+35: 6
+36: 7
+37: 8
+38: 9
+39: 0
+40: Enter
+41: Escape
+42: Backspace
+43: Tab
+44: Space
+45:
+- '-'
+- _
+46:
+- '='
+- +
+47:
+- '['
+- '{'
+48:
+- ']'
+- '}'
+49:
+- \
+- '|'
+51:
+- ;
+- ':'
+52:
+- ''''
+- '"'
+53:
+- '`'
+- '~'
+54:
+- ','
+- <
+55:
+- .
+- '>'
+56:
+- ''
+- ''
+- '?'
+57: Caps Lock
+58: F1
+59: F2
+60: F3
+61: F4
+62: F5
+63: F6
+64: F7
+65: F8
+66: F9
+67: F10
+68: F11
+69: F12
+70: PrtScr
+71: Scroll Lock
+72: Pause
+73: Insert
+74: Home
+75: PgUp
+76: Delete
+77: End
+78: PgDn
+79: Right
+80: Left
+81: Down
+82: Up
+83: Num Lock
+84: Keypad /
+85: Keypad *
+86: Keypad -
+87: Keypad +
+88: Keypad Enter
+89:
+- Keypad 1
+- Keypad End
+90:
+- Keypad 2
+- Keypad Down
+91:
+- Keypad 3
+- Keypad PgDn
+92:
+- Keypad 4
+- Keypad Left
+93: Keypad 5
+94:
+- Keypad 6
+- Keypad Right
+95:
+- Keypad 7
+- Keypad Home
+96:
+- Keypad 8
+- Keypad Up
+97:
+- Keypad 9
+- Keypad PgUp
+98:
+- Keypad 0
+- Keypad Ins
+99:
+- Keypad .
+- Keypad Del
+101: Application
+102: Power
+103: Keypad =
+104: F13
+105: F14
+106: F15
+107: F16
+108: F17
+109: F18
+110: F19
+111: F20
+112: F21
+113: F22
+114: F23
+115: F24
+116: Execute
+117: Help
+118: Menu
+119: Select
+120: Stop
+121: Again
+122: Undo
+123: Cut
+124: Copy
+125: Paste
+126: Find
+127: Mute
+128: Volume Up
+129: Volume Down
+133: Keypad ,
+134: Keypad =
+155: Cancel
+156: Clear
+157: Prior
+158: Return
+Special Keys:
+  0xb5: Next Track
+  0xb6: Previous Track
+  0xb7: Stop
+  0xb8: Eject
+  0xcd: Play / Pause
+  0xe0: Volume
+  0xe2: Mute
+  0xe9: Volume Up
+  0xea: Volume Down
