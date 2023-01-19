@@ -1,2 +1,2 @@
 udi_interface>=3.0.51
-pynput>=1.7.6
+pyusb>=1.2.1
