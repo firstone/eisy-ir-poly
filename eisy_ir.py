@@ -73,11 +73,13 @@ class Controller(udi_interface.Node):
         self.setDriver('ST', 0)
         LOGGER.info('Started eISY IR Server')
 
+        self.connect()
+
     def stop(self):
         self.is_running = False
 
     def connect(self):
-        for product in Controller.PRODUCT:
+        for product in Controller.PRODUCTS:
             if self.connect_dev(product):
                 LOGGER.info(f'{product["desc"]} connected')
                 self.poly.Notices.clear()
@@ -204,7 +206,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.1")
+    polyglot.start("0.1.2")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
