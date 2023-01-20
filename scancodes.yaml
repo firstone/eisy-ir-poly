@@ -40,39 +40,39 @@
 43: Tab
 44: Space
 45:
-- '-'
-- _
+  - '-'
+  - _
 46:
-- '='
-- +
+  - '='
+  - +
 47:
-- '['
-- '{'
+  - '['
+  - '{'
 48:
-- ']'
-- '}'
+  - ']'
+  - '}'
 49:
-- \
-- '|'
+  - \
+  - '|'
 51:
-- ;
-- ':'
+  - ;
+  - ':'
 52:
-- ''''
-- '"'
+  - "'"
+  - '"'
 53:
-- '`'
-- '~'
+  - '`'
+  - '~'
 54:
-- ','
-- <
+  - ','
+  - <
 55:
-- .
-- '>'
+  - .
+  - '>'
 56:
-- ''
-- ''
-- '?'
+  - ''
+  - ''
+  - '?'
 57: Caps Lock
 58: F1
 59: F2
@@ -106,36 +106,36 @@
 87: Keypad +
 88: Keypad Enter
 89:
-- Keypad 1
-- Keypad End
+  - Keypad 1
+  - Keypad End
 90:
-- Keypad 2
-- Keypad Down
+  - Keypad 2
+  - Keypad Down
 91:
-- Keypad 3
-- Keypad PgDn
+  - Keypad 3
+  - Keypad PgDn
 92:
-- Keypad 4
-- Keypad Left
+  - Keypad 4
+  - Keypad Left
 93: Keypad 5
 94:
-- Keypad 6
-- Keypad Right
+  - Keypad 6
+  - Keypad Right
 95:
-- Keypad 7
-- Keypad Home
+  - Keypad 7
+  - Keypad Home
 96:
-- Keypad 8
-- Keypad Up
+  - Keypad 8
+  - Keypad Up
 97:
-- Keypad 9
-- Keypad PgUp
+  - Keypad 9
+  - Keypad PgUp
 98:
-- Keypad 0
-- Keypad Ins
+  - Keypad 0
+  - Keypad Ins
 99:
-- Keypad .
-- Keypad Del
+  - Keypad .
+  - Keypad Del
 101: Application
 102: Power
 103: Keypad =
@@ -172,6 +172,15 @@
 157: Prior
 158: Return
 Special Keys:
+  0x24: Media Back
+  0x40: Media Home
+  0x41: Media Select
+  0x42: Media Up
+  0x43: Media Down
+  0x44: Media Left
+  0x45: Media Right
+  0xb3: Forward
+  0xb4: Rewind
   0xb5: Next Track
   0xb6: Previous Track
   0xb7: Stop

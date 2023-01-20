@@ -10,18 +10,6 @@ import yaml
 class Controller(udi_interface.Node):
 
     VENDOR_ID = 0x20a0
-    PRODUCTS = [
-        {
-            'ID': 0x0001,
-            'interface': 0,
-            'desc': 'Flirc V1'
-        },
-        {
-            'ID': 0x0006,
-            'interface': 1,
-            'desc': 'Flirc V2'
-        },
-    ]
     DEFAULT_TIMEOUT = 5000
 
     def __init__(self, polyglot, primary, address, name):
@@ -64,8 +52,6 @@ class Controller(udi_interface.Node):
             key.query()
 
     def start(self):
-        self.is_running = True
-
         self.poly.updateProfile()
         self.poly.Notices.clear()
         self.poly.setCustomParamsDoc()
@@ -79,25 +65,36 @@ class Controller(udi_interface.Node):
         self.is_running = False
 
     def connect(self):
-        for product in Controller.PRODUCTS:
-            if self.connect_dev(product):
-                LOGGER.info(f'{product["desc"]} connected')
-                self.poly.Notices.clear()
-                self.setDriver('ST', 1)
-                Thread(target=self.poll_flirc).start()
-                return
+        try:
+            self.is_running = False
+            self.dev = usb.core.find(idVendor=Controller.VENDOR_ID)
+            if self.dev is None:
+                raise RuntimeError('Device not found')
 
-        self.poly.Notices[
-            'device'] = 'Could not connect Flirc device. Make sure device is plugged in and permissioans are set'
+            interface_num = None
+            self.dev_endpoint = None
 
-    def connect_dev(self, product) -> bool:
-        self.dev = usb.core.find(idVendor=Controller.VENDOR_ID,
-                                 idProduct=product['ID'])
-        if self.dev is None:
-            return False
+            for interface in self.dev[0].interfaces():
+                if interface.bInterfaceClass == 3:
+                    if interface[0].wMaxPacketSize == 8:
+                        interface_num = interface.bInterfaceNumber
+                        self.dev_endpoint = interface[0]
+                        break
 
-        self.dev_endpoint = self.dev[0][(product['interface'], 0)][0]
-        return True
+            if self.dev_endpoint is None:
+                raise RuntimeError('Cannot find interface')
+
+            LOGGER.info(
+                f'Connected device {self.dev.idProduct} interface# {interface_num}'
+            )
+            self.poly.Notices.clear()
+            self.is_running = True
+            Thread(target=self.poll_flirc).start()
+            self.setDriver('ST', 1)
+        except Exception as e:
+            LOGGER.error(e)
+            self.poly.Notices[
+                'device'] = 'Could not connect Flirc device. Make sure device is plugged in and permissioans are set'
 
     def poll(self, pollflag):
         if self.dev_endpoint is None:
@@ -206,7 +203,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.2")
+    polyglot.start("0.1.3")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
