@@ -115,6 +115,10 @@ class Controller(udi_interface.Node):
         if self.timeout is None:
             self.timeout = Controller.DEFAULT_TIMEOUT
 
+    def idle_buttons(self):
+        for button in self.buttons.values():
+            button.idle()
+
     def poll_flirc(self):
         LOGGER.debug(f'Polling timeout {self.timeout}')
         while self.is_running:
@@ -150,9 +154,10 @@ class Controller(udi_interface.Node):
                 self.active_button = button
                 button.press()
             except usb.core.USBTimeoutError:
-                for button in self.buttons.values():
-                    button.idle()
-            except:
+                self.idle_buttons()
+            except Exception as e:
+                LOGGER.exception(e)
+                self.idle_buttons()
                 self.disconnect()
 
     id = 'controller'
