@@ -1,4 +1,5 @@
 from enum import Enum
+import os
 from threading import Thread
 import udi_interface
 from udi_interface import LOGGER
@@ -58,6 +59,7 @@ class Controller(udi_interface.Node):
 
         self.setDriver('ST', 0)
         LOGGER.info('Started eISY IR Server')
+        LOGGER.debug(f'Running as {os.geteuid}/{os.getegid}')
 
         self.connect()
 
@@ -96,6 +98,12 @@ class Controller(udi_interface.Node):
             self.poly.Notices[
                 'device'] = 'Could not connect Flirc device. Make sure device is plugged in and permissioans are set'
 
+    def disconnect(self):
+        self.setDriver('ST', 0)
+        self.is_running = False
+        self.dev = None
+        self.dev_endpoint = None
+
     def poll(self, pollflag):
         if self.dev_endpoint is None:
             self.connect()
@@ -108,6 +116,7 @@ class Controller(udi_interface.Node):
             self.timeout = Controller.DEFAULT_TIMEOUT
 
     def poll_flirc(self):
+        LOGGER.debug(f'Polling timeout {self.timeout}')
         while self.is_running:
             try:
                 buffer = self.dev.read(self.dev_endpoint.bEndpointAddress, 8,
@@ -143,6 +152,8 @@ class Controller(udi_interface.Node):
             except usb.core.USBTimeoutError:
                 for button in self.buttons.values():
                     button.idle()
+            except:
+                self.disconnect()
 
     id = 'controller'
     commands = {'QUERY': query}
@@ -203,7 +214,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.3")
+    polyglot.start("0.1.4")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
