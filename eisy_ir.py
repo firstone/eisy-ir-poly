@@ -208,6 +208,8 @@ class IRButton(udi_interface.Node):
     def set_state(self):
         LOGGER.debug(f'{self.desc} {self.state}')
         self.setDriver('ST', self.state.value)
+        if self.state != KeyState.IDLE:
+            self.reportCmd(f'GV{self.state.value}')
 
     def query(self):
         self.reportDrivers()
@@ -255,7 +257,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.5")
+    polyglot.start("0.1.6")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 

@@ -10,3 +10,7 @@ buttonstate_i-0 = Idle
 buttonstate_i-1 = Pressed
 buttonstate_i-2 = Held
 buttonstate_i-3 = Released
+
+CMD-GV1-NAME = Pressed
+CMD-GV2-NAME = Held
+CMD-GV3-NAME = Released

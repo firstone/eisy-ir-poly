@@ -17,7 +17,11 @@
             <st id="ST" editor="buttonstate" />
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="GV1" />
+                <cmd id="GV2" />
+                <cmd id="GV3" />
+            </sends>
             <accepts />
         </cmds>
     </nodeDef>
