@@ -32,5 +32,7 @@ Key has the following states: Pressed, Held, Released and Idle.
 
 Pressed and Released are temporary state. The key will then change to Idle after a timeout.
 
-Timeout that switched key to Idle can be changed via "Idle Threshold" parameter. But default it's 5000 ms (5 seconds).
+Timeout that switches key to Idle can be changed via "Idle Threshold" parameter.
+
+Timeout that switches key between Pressed and Held can be changed via "Idle Threshold". Depending on the remote it can be decreased to as low as 250 ms. Lower value might cause incorrect states.
 
