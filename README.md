@@ -12,17 +12,19 @@ At this point Flirc cannot be connected automatically and requires the following
 
 * Execute
 
-> curl https://raw.githubusercontent.com/firstone/eisy-ir-poly/main/reset_flirc.sh -o reset_flirc.sh
+> curl https://raw.githubusercontent.com/firstone/eisy-ir-poly/main/flirc.conf -o flirc.conf
 
 * Execute
 
-> chmod +x reset_flirc.sh
+> sudo mkdir -p /usr/local/etc/devd
 
 * Execute
 
-> sudo ./reset_flirc.sh
+> sudo cp ./flirc.conf /usr/local/etc/devd
 
-Last commands need to be repeated every time Flirc is unpluged or eISY/Polisy is rebooted.
+* Execute
+
+> sudo service devd restart
 
 ## Set up node server for learned keys
 
