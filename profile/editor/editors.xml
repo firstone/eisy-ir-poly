@@ -1,6 +1,6 @@
 <editors>
-    <editor id="bool">
-        <range uom="2" subset="0,1" />
+    <editor id="state">
+        <range uom="25" subset="0-2" nls="state_i" />
     </editor>
     <editor id="buttonstate">
         <range uom="25" subset="0-3" nls="buttonstate_i" />

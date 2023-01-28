@@ -1,7 +1,11 @@
 # controller
 ND-controller-NAME = IR Controller
 CMD-ctl-QUERY-NAME = Query
-ST-ctl-ST-NAME = IR Controller Online
+ST-ctl-ST-NAME = IR Controller Status
+
+state_i-0 = Offline
+state_i-1 = Online
+state_i-2 = Failed
 
 # ir button
 ND-irbutton-NAME = IR Button

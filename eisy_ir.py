@@ -183,7 +183,7 @@ class Controller(udi_interface.Node):
 
     id = 'controller'
     commands = {'QUERY': query}
-    drivers = [{'driver': 'ST', 'value': 0, 'uom': 2}]
+    drivers = [{'driver': 'ST', 'value': 0, 'uom': 25}]
 
 
 class KeyState(Enum):
@@ -257,7 +257,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.6")
+    polyglot.start("0.1.7")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
