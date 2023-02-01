@@ -1,5 +1,4 @@
 from enum import Enum
-import os
 from threading import Thread
 import time
 import udi_interface
@@ -30,6 +29,7 @@ class Controller(udi_interface.Node):
 
         polyglot.subscribe(polyglot.START, self.start, address)
         polyglot.subscribe(polyglot.STOP, self.stop)
+        polyglot.subscribe(polyglot.CONFIG, self.config_handler)
         polyglot.subscribe(polyglot.CUSTOMTYPEDDATA, self.parameter_handler)
         polyglot.subscribe(polyglot.POLL, self.poll)
 
@@ -68,9 +68,18 @@ class Controller(udi_interface.Node):
 
         self.setDriver('ST', 0)
         LOGGER.info('Started eISY IR Server')
-        LOGGER.debug(f'Running as {os.geteuid()}/{os.getegid()}')
 
         self.connect()
+
+    def config_handler(self, config):
+        for node in config.get('nodes', {}):
+            if not node['isPrimary']:
+                button_code = int(node['address'][9:], 16)
+                desc = node['name'][10:]
+                button = IRButton(self, button_code, desc)
+                self.buttons[button_code] = button
+                self.poly.addNode(button)
+                button.idle()
 
     def stop(self):
         self.is_running = False
@@ -79,6 +88,8 @@ class Controller(udi_interface.Node):
                 self.dev.reset()
         except:
             pass
+        for button in self.buttons.values():
+            button.offline()
 
     def connect(self):
         try:
@@ -147,7 +158,7 @@ class Controller(udi_interface.Node):
         while self.is_running:
             try:
                 buffer = self.dev.read(self.dev_endpoint.bEndpointAddress, 8, 0).tobytes()
-                # LOGGER.debug(buffer.hex())
+                LOGGER.debug(buffer.hex())
                 if buffer[0] == 2:
                     code = buffer[1]
                     code_dict = self.key_codes['Special Keys']
@@ -191,6 +202,7 @@ class KeyState(Enum):
     PRESSED = 1
     HELD = 2
     RELEASED = 3
+    OFFLINE = 4
 
 
 class IRButton(udi_interface.Node):
@@ -208,7 +220,7 @@ class IRButton(udi_interface.Node):
     def set_state(self):
         LOGGER.debug(f'{self.desc} {self.state}')
         self.setDriver('ST', self.state.value)
-        if self.state != KeyState.IDLE:
+        if self.state != KeyState.IDLE and self.state != KeyState.OFFLINE:
             self.reportCmd(f'GV{self.state.value}')
 
     def query(self):
@@ -216,6 +228,14 @@ class IRButton(udi_interface.Node):
 
     def time(self):
         return int(time.time_ns() / 1000000)
+
+    def idle(self):
+        self.state = KeyState.IDLE
+        self.set_state()
+
+    def offline(self):
+        self.state = KeyState.OFFLINE
+        self.set_state()
 
     def is_idle(self):
         return self.state == KeyState.IDLE
@@ -257,7 +277,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("0.1.8")
+    polyglot.start("0.1.9")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
