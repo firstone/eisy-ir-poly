@@ -6,6 +6,12 @@ You can choose any Flirc profile but mapping of the keys might require some expe
 
 ## Connect Flirc to eISY/Polisy
 
+###  eISY / PG3x
+
+Once node server is installed, nothing else needs to be done. Just plug-in Flirc. Or if already plugged in, unplug and plug back in.
+
+### Polisy / PG3
+
 At this point Flirc cannot be connected automatically and requires the following procedure:
 
 * SSH into your eISY/Polisy
