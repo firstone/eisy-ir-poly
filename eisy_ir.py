@@ -277,7 +277,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("1.0.00")
+    polyglot.start("1.0.0")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
