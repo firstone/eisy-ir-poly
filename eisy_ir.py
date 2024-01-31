@@ -1,4 +1,3 @@
-from enum import Enum
 from threading import Thread
 import time
 import udi_interface
@@ -7,24 +6,30 @@ import usb.core
 import usb.util
 import yaml
 
+from ir_button import IRButton, KeyState
+
 
 class Controller(udi_interface.Node):
 
     VENDOR_ID = 0x20a0
-    IDLE_THRESHOLD = 100
-    HELD_THRESHOLD = 400
+    HELD_THRESHOLD = 500
+    IDLE_THRESHOLD = 500
+    RELEASE_THRESHOLD = 300
 
     def __init__(self, polyglot, primary, address, name):
-        super(Controller, self).__init__(polyglot, primary, address, name)
+        super().__init__(polyglot, primary, address, name)
         self.buttons = {}
         self.active_buttons = {}
         self.active_button = None
         self.dev_endpoint = None
         self.idle_threshold = Controller.IDLE_THRESHOLD
         self.held_threshold = Controller.HELD_THRESHOLD
+        self.release_threshold = Controller.RELEASE_THRESHOLD
         self.key_codes = {}
+        self.is_running = False
+        self.dev = None
 
-        with open('scancodes.yaml', 'r') as f:
+        with open('scancodes.yaml', 'r', encoding='utf-8') as f:
             self.key_codes = yaml.safe_load(f)
 
         polyglot.subscribe(polyglot.START, self.start, address)
@@ -37,7 +42,8 @@ class Controller(udi_interface.Node):
             {
                 'name': 'idleThreshold',
                 'title': 'Idle Threshold',
-                'desc': 'Threshold (in ms) before pressed or released key state becomes idle',
+                'desc':
+                'Threshold (in ms) before pressed or released key state becomes idle',
                 'isRequired': True,
                 'defaultValue': Controller.IDLE_THRESHOLD
             },
@@ -48,6 +54,13 @@ class Controller(udi_interface.Node):
                 'isRequired': True,
                 'defaultValue': Controller.HELD_THRESHOLD
             },
+            {
+                'name': 'releaseThreshold',
+                'title': 'Release Threshold',
+                'desc': 'Threshold (in ms) before button release registers',
+                'isRequired': True,
+                'defaultValue': Controller.RELEASE_THRESHOLD
+            },
         ], True)
 
         polyglot.ready()
@@ -57,7 +70,7 @@ class Controller(udi_interface.Node):
         pass
 
     def query(self):
-        super(Controller, self).query()
+        super().query()
         for key in self.buttons.values():
             key.query()
 
@@ -76,7 +89,7 @@ class Controller(udi_interface.Node):
             if not node['isPrimary']:
                 button_code = int(node['address'][9:], 16)
                 desc = node['name'][10:]
-                button = IRButton(self, button_code, desc)
+                button = IRButtonNode(self, button_code, desc)
                 self.buttons[button_code] = button
                 self.poly.addNode(button)
                 button.idle()
@@ -86,7 +99,7 @@ class Controller(udi_interface.Node):
         try:
             if self.dev is not None:
                 self.dev.reset()
-        except:
+        except Exception:
             pass
         for button in self.buttons.values():
             button.offline()
@@ -111,7 +124,8 @@ class Controller(udi_interface.Node):
             if self.dev_endpoint is None:
                 raise RuntimeError('Cannot find interface')
 
-            LOGGER.info(f'Connected device version {self.dev.idProduct} interface# {interface_num}')
+            LOGGER.info('Connected device version %s interface# %d',
+                        self.dev.idProduct, interface_num)
             self.poly.Notices.clear()
             self.is_running = True
             Thread(target=self.poll_flirc).start()
@@ -120,7 +134,8 @@ class Controller(udi_interface.Node):
         except Exception as e:
             LOGGER.error(e)
             self.poly.Notices[
-                'device'] = 'Could not connect Flirc device. Make sure device is plugged in and permissioans are set'
+                'device'] = 'Could not connect Flirc device. Make sure device is plugged \
+                             in and permissioans are set'
 
     def disconnect(self):
         self.setDriver('ST', 0)
@@ -128,6 +143,7 @@ class Controller(udi_interface.Node):
         self.dev = None
         self.dev_endpoint = None
 
+    #pylint: disable=unused-argument
     def poll(self, pollflag):
         if self.dev_endpoint is None:
             self.connect()
@@ -135,16 +151,20 @@ class Controller(udi_interface.Node):
     def set_param(self, params, name, default):
         try:
             val = int(params.get(name))
-        except Exception as e:
+        except Exception:
             val = default
 
-        LOGGER.debug(f'{name} set to {val}')
+        LOGGER.debug('%s set to %s', name, val)
 
         return val
 
     def parameter_handler(self, params):
-        self.idle_threshold = self.set_param(params, 'idleThreshold', Controller.IDLE_THRESHOLD)
-        self.held_threshold = self.set_param(params, 'pressThreshold', Controller.HELD_THRESHOLD)
+        self.idle_threshold = self.set_param(params, 'idleThreshold',
+                                             Controller.IDLE_THRESHOLD)
+        self.held_threshold = self.set_param(params, 'pressThreshold',
+                                             Controller.HELD_THRESHOLD)
+        self.release_threshold = self.set_param(params, 'releaseThreshold',
+                                                Controller.RELEASE_THRESHOLD)
 
     def tick(self):
         while self.is_running:
@@ -157,7 +177,8 @@ class Controller(udi_interface.Node):
     def poll_flirc(self):
         while self.is_running:
             try:
-                buffer = self.dev.read(self.dev_endpoint.bEndpointAddress, 8, 0).tobytes()
+                buffer = self.dev.read(self.dev_endpoint.bEndpointAddress, 8,
+                                       0).tobytes()
                 LOGGER.debug(buffer.hex())
                 if buffer[0] == 2:
                     code = buffer[1]
@@ -180,7 +201,7 @@ class Controller(udi_interface.Node):
                         desc = f'code {code}'
                     elif not isinstance(desc, str):
                         desc = desc[0]
-                    button = IRButton(self, button_code, desc)
+                    button = IRButtonNode(self, button_code, desc)
                     self.buttons[button_code] = button
                     self.poly.addNode(button)
 
@@ -197,78 +218,50 @@ class Controller(udi_interface.Node):
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 25}]
 
 
-class KeyState(Enum):
-    IDLE = 0
-    PRESSED = 1
-    HELD = 2
-    RELEASED = 3
-    OFFLINE = 4
-
-
-class IRButton(udi_interface.Node):
+class IRButtonNode(udi_interface.Node):
 
     def __init__(self, controller, code, desc):
-        super(IRButton, self).__init__(controller.poly, controller.address, f'irbutton_{hex(code)[2:]}',
-                                       f'IR Button {desc}')
+        super().__init__(controller.poly, controller.address,
+                         f'irbutton_{hex(code)[2:]}', f'IR Button {desc}')
+        self.button = IRButton(controller, IRButtonNode.timer)
         self.controller = controller
         self.code = code
         self.desc = desc
-        self.state = KeyState.IDLE
-        self.pressed_time = 0
-        self.released_time = 0
 
     def set_state(self):
-        LOGGER.debug(f'{self.desc} {self.state}')
-        self.setDriver('ST', self.state.value)
-        if self.state != KeyState.IDLE and self.state != KeyState.OFFLINE:
-            self.reportCmd(f'GV{self.state.value}')
+        LOGGER.debug('setting %s to state %s', self.desc, self.button.state)
+        self.setDriver('ST', self.button.state.value)
+        if self.button.state not in (KeyState.IDLE, KeyState.OFFLINE):
+            self.reportCmd(f'GV{self.button.state.value}')
 
     def query(self):
         self.reportDrivers()
 
-    def time(self):
+    @staticmethod
+    def timer():
         return int(time.time_ns() / 1000000)
 
     def idle(self):
-        self.state = KeyState.IDLE
+        self.button.idle()
         self.set_state()
 
     def offline(self):
-        self.state = KeyState.OFFLINE
+        self.button.offline()
         self.set_state()
 
     def is_idle(self):
-        return self.state == KeyState.IDLE
+        return self.button.is_idle()
 
     def tick(self):
-        if self.pressed_time > 0 and self.state != KeyState.HELD:
-            lapsed = self.time() - self.pressed_time
-            if (lapsed) > self.controller.held_threshold:
-                # LOGGER.debug(f'lapsed {lapsed}, threshold {self.controller.held_threshold}')
-                self.state = KeyState.HELD
-                self.set_state()
-
-        elif self.released_time > 0 and self.state != KeyState.IDLE:
-            if (self.time() - self.released_time) > self.controller.idle_threshold:
-                self.state = KeyState.IDLE
-                self.set_state()
-                self.released_time = 0
+        if self.button.tick():
+            LOGGER.debug('change detected %s %s', self.desc, self.button.state)
+            self.set_state()
 
     def press(self):
-        if self.pressed_time == 0:
-            self.state = KeyState.PRESSED
-            self.pressed_time = self.time()
+        self.button.press()
 
     def release(self):
-        self.pressed_time = 0
-        self.released_time = self.time()
-
-        if self.state == KeyState.HELD:
-            self.state = KeyState.RELEASED
-        else:
-            self.state = KeyState.PRESSED
-
-        self.set_state()
+        self.button.release()
 
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 25}]
 
@@ -277,7 +270,7 @@ class IRButton(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("1.0.0")
+    polyglot.start("1.2.0")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 
