@@ -173,7 +173,13 @@ class Controller(udi_interface.Node):
             try:
                 buffer = self.dev.read(self.dev_endpoint.bEndpointAddress, 8, 0).tobytes()
                 LOGGER.debug(buffer.hex())
-                button_code = IRButton.get_code(buffer)
+                code, button_code = IRButton.get_code(buffer)
+                if code == 0:
+                    if self.active_button is not None:
+                        self.active_button.release()
+                        self.active_button = None
+                    continue
+
                 button = self.buttons.get(button_code)
                 if button is None:
                     button = IRButtonNode(self, button_code, IRButton.get_code_desc(buffer, self.key_codes))

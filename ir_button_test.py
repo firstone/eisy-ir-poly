@@ -173,15 +173,19 @@ def test_modifiers():
 
 
 def test_get_code_simple():
-    assert IRButton.get_code([1, 0, 0x16]) == 0x116
+    assert IRButton.get_code([1, 0, 0x16]) == (0x16, 0x116)
+
+
+def test_get_code_release():
+    assert IRButton.get_code([1, 0, 0]) == (0, 0x100)
 
 
 def test_get_code_special():
-    assert IRButton.get_code([2, 0x16, 0x20]) == 0x216
+    assert IRButton.get_code([2, 0x16, 0x20]) == (0x16, 0x216)
 
 
 def test_get_code_mod():
-    assert IRButton.get_code([1, 0x24, 0x16]) == 0x12416
+    assert IRButton.get_code([1, 0x24, 0x16]) == (0x16, 0x12416)
 
 
 def test_get_code_desc_simple():

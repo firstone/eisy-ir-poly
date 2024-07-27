@@ -102,14 +102,16 @@ class IRButton:
 
     @staticmethod
     def get_code(buffer):
+        key_code = buffer[2]
         if buffer[0] == IRButton.SPECIAL_CODE:
             code = buffer[0] << 8 | buffer[1]
+            key_code = buffer[1]
         elif buffer[1] != 0:  # modifier present
             code = buffer[0] << 16 | buffer[1] << 8 | buffer[2]
         else:
             code = buffer[0] << 8 | buffer[2]
 
-        return code
+        return key_code, code
 
     @staticmethod
     def get_code_desc(buffer, codes):
