@@ -165,3 +165,36 @@ def test_multi_hold(button, timer):
     roll_to(button, timer, 18, KeyState.RELEASED, KeyState.IDLE)
 
     roll_to(button, timer, 20, KeyState.IDLE)
+
+
+def test_modifiers():
+    desc = IRButton.get_modifier_desc(0x24)
+    assert desc == ['LA', 'RS']
+
+
+def test_get_code_simple():
+    assert IRButton.get_code([1, 0, 0x16]) == 0x116
+
+
+def test_get_code_special():
+    assert IRButton.get_code([2, 0x16, 0x20]) == 0x216
+
+
+def test_get_code_mod():
+    assert IRButton.get_code([1, 0x24, 0x16]) == 0x12416
+
+
+def test_get_code_desc_simple():
+    assert IRButton.get_code_desc([1, 0, 0x16], {0x16: 'A'}) == 'A'
+
+
+def test_get_code_desc_fail():
+    assert IRButton.get_code_desc([1, 0, 0x16], {}) == 'code 22'
+
+
+def test_get_code_desc_special():
+    assert IRButton.get_code_desc([2, 0x16, 0x32], {'Special Keys': {0x16: 'A'}}) == 'A'
+
+
+def test_get_code_desc_mod():
+    assert IRButton.get_code_desc([1, 0x24, 0x16], {0x16: 'A'}) == 'LA+RS+A'
