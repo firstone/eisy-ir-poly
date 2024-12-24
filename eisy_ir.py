@@ -14,7 +14,7 @@ class Controller(udi_interface.Node):
     VENDOR_ID = 0x20a0
     HELD_THRESHOLD = 500
     IDLE_THRESHOLD = 500
-    RELEASE_THRESHOLD = 300
+    RELEASE_THRESHOLD = 50
 
     def __init__(self, polyglot, primary, address, name):
         super().__init__(polyglot, primary, address, name)
@@ -250,7 +250,7 @@ class IRButtonNode(udi_interface.Node):
 
 def eisy_ir_server():
     polyglot = udi_interface.Interface([])
-    polyglot.start("1.3.0")
+    polyglot.start("1.3.1")
     Controller(polyglot, "controller", "controller", "eISY IR Controller")
     polyglot.runForever()
 

@@ -202,3 +202,35 @@ def test_get_code_desc_special():
 
 def test_get_code_desc_mod():
     assert IRButton.get_code_desc([1, 0x24, 0x16], {0x16: 'A'}) == 'LA+RS+A'
+
+
+def test_press2(button, timer, controller):
+    controller.release_threshold = 3
+    controller.idle_threshold = 5
+    controller.held_threshold = 5
+
+    assert button.state == KeyState.IDLE
+
+    timer(1)
+
+    button.press()
+    button.tick()
+
+    assert button.state == KeyState.IDLE
+
+    timer(4)
+    button.tick()
+
+    assert button.state == KeyState.IDLE
+
+    button.release()
+
+    timer(6)
+    button.tick()
+
+    assert button.state == KeyState.IDLE
+
+    timer(7)
+    button.tick()
+
+    assert button.state == KeyState.HELD
